@@ -110,7 +110,7 @@ namespace Tcp_Protocol
         }
 
         /// <summary>
-        /// 开启套接字端口
+        /// 开启客户端套接字
         /// </summary>
         public void StartSocket()
         {
@@ -128,7 +128,7 @@ namespace Tcp_Protocol
         }
 
         /// <summary>
-        /// 关闭套接字端口
+        /// 关闭客户端套接字
         /// </summary>
         public void StopSocket()
         {
@@ -146,7 +146,13 @@ namespace Tcp_Protocol
             {
             }
         }
-        public void SendData(string str) {
+
+        /// <summary>
+        /// 数据发送
+        /// </summary>
+        /// <param name="str"></param>
+        public void SendData(string str)
+        {
             if (DeviceClient.Connected)
             {
                 DeviceClient.Client.Send(System.Text.Encoding.Default.GetBytes(str));

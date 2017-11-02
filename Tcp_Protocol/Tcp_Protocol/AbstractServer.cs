@@ -10,12 +10,36 @@ namespace Tcp_Protocol
 {
     public class AbstractServer
     {
+        /// <summary>
+        /// TCP监听
+        /// </summary>
         private TcpListener listener;
-        private TcpClient devcieClient;
+        
+        /// <summary>
+        /// 监听客户端
+        /// </summary>
+        private TcpClient DevcieClient;
+
+        /// <summary>
+        /// 端口号
+        /// </summary>
         private int port;
+
+        /// <summary>
+        /// 监听线程
+        /// </summary>
         private Thread listenerThread;
+
+        /// <summary>
+        /// 接收数据长度
+        /// </summary>
         private int isReadDataLen = 0;
+
+        /// <summary>
+        /// 数据缓存
+        /// </summary>
         private byte[] RcvBuff = new byte[10 * 1024 * 1024];
+
         public delegate void dltRcvClientData(int len, byte[] buffer);
         public dltRcvClientData dltClientData;
 
@@ -24,7 +48,7 @@ namespace Tcp_Protocol
             this.port = port;
             listenerThread = new Thread(ListenerClinet);
             listenerThread.IsBackground = true;
-            devcieClient = new TcpClient();
+            DevcieClient = new TcpClient();
         }
         public void ListenerClinet()
         {
@@ -32,16 +56,16 @@ namespace Tcp_Protocol
             {
                 try
                 {
-                    if (!isClientInOnline(devcieClient))
+                    if (!isClientInOnline(DevcieClient))
                     {
-                        devcieClient = listener.AcceptTcpClient();
-                        devcieClient.Client.ReceiveBufferSize = 10 * 1024 * 1024;
-                        devcieClient.Client.SendTimeout = 1000;
+                        DevcieClient = listener.AcceptTcpClient();
+                        DevcieClient.Client.ReceiveBufferSize = 10 * 1024 * 1024;
+                        DevcieClient.Client.SendTimeout = 1000;
                         continue;
                     }
-                    if (devcieClient != null && devcieClient.Client.Available > 0)
+                    if (DevcieClient != null && DevcieClient.Client.Available > 0)
                     {
-                        isReadDataLen = devcieClient.Client.Receive(RcvBuff, SocketFlags.None);
+                        isReadDataLen = DevcieClient.Client.Receive(RcvBuff, SocketFlags.None);
                         dltClientData(isReadDataLen, RcvBuff);
                     }
                 }
@@ -50,19 +74,32 @@ namespace Tcp_Protocol
                 }
             }
         }
+
+        /// <summary>
+        /// 判断客户端是否在线
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns></returns>
         public bool isClientInOnline(TcpClient client)
         {
             return !((client.Client.Poll(1000, SelectMode.SelectRead) && (client.Client.Available == 0)) || !client.Client.Connected);
         }
 
+        /// <summary>
+        /// 数据发送
+        /// </summary>
+        /// <param name="str"></param>
         public void SendData(string str)
         {
-            if (devcieClient.Client.Connected)
+            if (DevcieClient.Client.Connected)
             {
-                devcieClient.Client.Send(System.Text.Encoding.Default.GetBytes(str));
+                DevcieClient.Client.Send(System.Text.Encoding.Default.GetBytes(str));
             }
         }
 
+        /// <summary>
+        /// 开启服务器套接字
+        /// </summary>
         public void StartSocket()
         {
             try
